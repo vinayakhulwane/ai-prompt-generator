@@ -29,7 +29,7 @@
     }
 
     .card {
-      background: #fff;
+      background: #ffffff;
       border-radius: 14px;
       padding: 20px;
       box-shadow: 0 12px 30px rgba(0,0,0,0.12);
@@ -41,6 +41,7 @@
       margin: 0 0 16px 0;
       border-bottom: 1px solid #eee;
       padding-bottom: 8px;
+      font-size: 18px;
     }
 
     label {
@@ -83,10 +84,9 @@
       line-height: 1.3;
     }
 
-    .suggestion {
-      font-size: 12px;
-      color: #666;
-      margin-left: 28px;
+    .rule.suggestion span {
+      color: #555;
+      font-style: italic;
     }
 
     .btn {
@@ -189,7 +189,7 @@ const TASK_RULES = {
       "follow_language_version",
       "sample_message"
     ],
-    suggestion: "Specify language and version clearly to avoid incompatible code."
+    suggestion: "specify_language_and_version"
   },
   json_generation: {
     rules: [
@@ -198,7 +198,7 @@ const TASK_RULES = {
       "comments",
       "specified_format"
     ],
-    suggestion: "Always define exact keys and structure before generation."
+    suggestion: "define_exact_json_schema"
   },
   image_generation: {
     rules: [
@@ -206,7 +206,7 @@ const TASK_RULES = {
       "explanation",
       "include_style_mood_composition"
     ],
-    suggestion: "Provide style, mood, and composition inputs for better results."
+    suggestion: "provide_style_mood_composition"
   },
   image_analysis: {
     rules: [
@@ -214,7 +214,7 @@ const TASK_RULES = {
       "no_storytelling",
       "no_repetition"
     ],
-    suggestion: "Ask only for observable details to avoid hallucination."
+    suggestion: "ask_observable_details_only"
   },
   drafting: {
     rules: [
@@ -222,7 +222,7 @@ const TASK_RULES = {
       "no_meta_commentary",
       "no_justification"
     ],
-    suggestion: "Set tone and audience explicitly for clean output."
+    suggestion: "set_tone_and_audience"
   },
   planning: {
     rules: [
@@ -230,14 +230,14 @@ const TASK_RULES = {
       "no_motivational",
       "no_assumptions"
     ],
-    suggestion: "Provide constraints (time, budget, scope) for practical plans."
+    suggestion: "define_constraints_clearly"
   },
   analysis: {
     rules: [
       "use_table",
       "no_background_explanation"
     ],
-    suggestion: "Define decision criteria upfront."
+    suggestion: "define_decision_criteria"
   },
   qa: {
     rules: [
@@ -245,14 +245,14 @@ const TASK_RULES = {
       "minimal_words",
       "no_followups"
     ],
-    suggestion: "Ask precise questions to get precise answers."
+    suggestion: "ask_precise_question"
   },
   brainstorming: {
     rules: [
       "no_ranking",
       "no_summaries"
     ],
-    suggestion: "Limit number of ideas to keep output focused."
+    suggestion: "limit_number_of_ideas"
   },
   summarization: {
     rules: [
@@ -260,7 +260,7 @@ const TASK_RULES = {
       "strict_length_control",
       "no_commentary"
     ],
-    suggestion: "Mention desired length or bullet count."
+    suggestion: "specify_summary_length"
   }
 };
 
@@ -272,15 +272,18 @@ function renderRules() {
   TASK_RULES[t].rules.forEach(rule => {
     const row = document.createElement("div");
     row.className = "rule";
-    row.innerHTML = `<input type="checkbox" checked value="${rule}">
-                     <span>${rule.replaceAll("_"," ")}</span>`;
+    row.innerHTML =
+      `<input type="checkbox" checked value="${rule}">
+       <span>${rule.replaceAll("_"," ")}</span>`;
     rulesDiv.appendChild(row);
   });
 
-  const hint = document.createElement("div");
-  hint.className = "suggestion";
-  hint.textContent = "Suggestion: " + TASK_RULES[t].suggestion;
-  rulesDiv.appendChild(hint);
+  const suggestionRow = document.createElement("div");
+  suggestionRow.className = "rule suggestion";
+  suggestionRow.innerHTML =
+    `<input type="checkbox" checked value="${TASK_RULES[t].suggestion}">
+     <span>suggestion: ${TASK_RULES[t].suggestion.replaceAll("_"," ")}</span>`;
+  rulesDiv.appendChild(suggestionRow);
 }
 
 function estimateTokens() {
@@ -289,7 +292,8 @@ function estimateTokens() {
 
 function generate() {
   const rules = {};
-  document.querySelectorAll("#rules input:checked").forEach(cb => rules[cb.value] = true);
+  document.querySelectorAll("#rules input:checked")
+    .forEach(cb => rules[cb.value] = true);
 
   const payload = {
     role: "system",
