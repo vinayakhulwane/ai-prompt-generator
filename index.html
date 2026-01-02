@@ -6,122 +6,202 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
+    * { box-sizing: border-box; }
+
     body {
-      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      font-family: "Inter", "Segoe UI", Arial, sans-serif;
       background: linear-gradient(135deg, #667eea, #764ba2);
       min-height: 100vh;
-      margin: 0;
-      padding: 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .container {
-      background: #fff;
-      max-width: 560px;
-      width: 100%;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.15);
     }
 
-    h2 {
-      text-align: center;
-      margin-top: 0;
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card h3 {
+      margin: 0 0 16px 0;
+      font-size: 18px;
+      color: #333;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
     }
 
     label {
+      font-size: 14px;
       font-weight: 600;
-      margin-top: 14px;
+      color: #444;
+      margin-bottom: 6px;
       display: block;
     }
 
-    select, input, textarea {
+    select,
+    input,
+    textarea {
       width: 100%;
-      margin-top: 6px;
-      padding: 10px;
-      font-size: 15px;
+      padding: 10px 12px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 14px;
+      outline: none;
     }
 
     textarea {
-      height: 150px;
       resize: vertical;
+      min-height: 140px;
     }
 
-    .rules-box {
-      margin-top: 12px;
-      padding: 10px;
-      background: #f5f6fa;
-      border-radius: 8px;
+    select:focus,
+    input:focus,
+    textarea:focus {
+      border-color: #667eea;
     }
 
-    .rule-item {
+    .section {
+      margin-bottom: 18px;
+    }
+
+    /* RULE CHECKBOXES */
+    .rules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .rule {
       display: flex;
       align-items: center;
-      margin-bottom: 6px;
-    }
-
-    .rule-item input {
-      margin-right: 8px;
-    }
-
-    button {
-      width: 100%;
-      margin-top: 16px;
-      padding: 12px;
-      font-size: 15px;
-      font-weight: 600;
+      padding: 8px 10px;
+      border: 1px solid #e0e0e0;
       border-radius: 8px;
-      border: none;
+      background: #fafafa;
       cursor: pointer;
     }
 
-    .generate-btn {
-      background: #667eea;
-      color: #fff;
+    .rule input {
+      margin-right: 10px;
+      accent-color: #667eea;
     }
 
-    .copy-btn {
+    .rule span {
+      font-size: 14px;
+      color: #333;
+    }
+
+    /* BUTTONS */
+    .btn {
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(102,126,234,0.4);
+    }
+
+    .btn-success {
       background: #2ecc71;
       color: #fff;
+      box-shadow: 0 6px 16px rgba(46,204,113,0.4);
+    }
+
+    .footer-note {
+      margin-top: auto;
+      font-size: 12px;
+      color: #777;
+      text-align: center;
     }
   </style>
 </head>
 
 <body>
-<div class="container">
-  <h2>AI Prompt Generator</h2>
+  <div class="app">
 
-  <label>Task Type</label>
-  <select id="task" onchange="renderRules()">
-    <option value="coding">Coding</option>
-    <option value="json_generation">JSON Generation</option>
-    <option value="image_generation">Image Generation</option>
-    <option value="image_analysis">Image Analysis</option>
-    <option value="drafting">Drafting</option>
-    <option value="planning">Planning</option>
-    <option value="analysis">Analysis</option>
-    <option value="qa">Q&A / Short Answer</option>
-    <option value="brainstorming">Brainstorming</option>
-    <option value="summarization">Summarization</option>
-  </select>
+    <!-- CARD 1 : TASK + RULES -->
+    <div class="card">
+      <h3>Task Configuration</h3>
 
-  <label>Rules</label>
-  <div id="rules" class="rules-box"></div>
+      <div class="section">
+        <label>Task Type</label>
+        <select id="task" onchange="renderRules()">
+          <option value="coding">Coding</option>
+          <option value="json_generation">JSON Generation</option>
+          <option value="image_generation">Image Generation</option>
+          <option value="image_analysis">Image Analysis</option>
+          <option value="drafting">Drafting</option>
+          <option value="planning">Planning</option>
+          <option value="analysis">Analysis</option>
+          <option value="qa">Q&A / Short Answer</option>
+          <option value="brainstorming">Brainstorming</option>
+          <option value="summarization">Summarization</option>
+        </select>
+      </div>
 
-  <label>Describe Task</label>
-  <input id="desc" placeholder="What exactly do you want?" />
+      <div class="section">
+        <label>Rules</label>
+        <div id="rules" class="rules-list"></div>
+      </div>
 
-  <button class="generate-btn" onclick="generate()">Generate JSON</button>
+      <div class="footer-note">
+        Rules are injected exactly as selected
+      </div>
+    </div>
 
-  <label>Generated Prompt JSON</label>
-  <textarea id="output"></textarea>
+    <!-- CARD 2 : INPUT + OUTPUT -->
+    <div class="card">
+      <h3>Prompt Builder</h3>
 
-  <button class="copy-btn" onclick="copy()">Copy to Clipboard</button>
-</div>
+      <div class="section">
+        <label>Describe Task</label>
+        <input id="desc" placeholder="What exactly do you want?" />
+      </div>
+
+      <div class="section">
+        <button class="btn btn-primary" onclick="generate()">Generate JSON</button>
+      </div>
+
+      <div class="section">
+        <label>Generated Prompt JSON</label>
+        <textarea id="output" placeholder="Generated JSON will appear here"></textarea>
+      </div>
+
+      <div class="section">
+        <button class="btn btn-success" onclick="copy()">Copy to Clipboard</button>
+      </div>
+    </div>
+
+  </div>
 
 <script>
 const TASK_RULES = {
@@ -184,25 +264,24 @@ function renderRules() {
   rulesDiv.innerHTML = "";
 
   TASK_RULES[task].forEach(rule => {
-    const div = document.createElement("div");
-    div.className = "rule-item";
+    const label = document.createElement("label");
+    label.className = "rule";
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.value = rule;
     checkbox.checked = true;
 
-    const label = document.createElement("span");
-    label.textContent = rule.replaceAll("_", " ");
+    const text = document.createElement("span");
+    text.textContent = rule.replaceAll("_", " ");
 
-    div.appendChild(checkbox);
-    div.appendChild(label);
-    rulesDiv.appendChild(div);
+    label.appendChild(checkbox);
+    label.appendChild(text);
+    rulesDiv.appendChild(label);
   });
 }
 
 function generate() {
-  const task = document.getElementById("task").value;
   const rules = {};
   document.querySelectorAll("#rules input:checked").forEach(cb => {
     rules[cb.value] = true;
@@ -210,7 +289,7 @@ function generate() {
 
   const data = {
     role: "system",
-    task_type: task,
+    task_type: document.getElementById("task").value,
     rules: rules,
     user_input: document.getElementById("desc").value
   };
