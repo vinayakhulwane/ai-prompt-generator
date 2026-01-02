@@ -17,7 +17,7 @@
     }
 
     .app {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -25,13 +25,11 @@
     }
 
     @media (max-width: 768px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
+      .app { grid-template-columns: 1fr; }
     }
 
     .card {
-      background: #ffffff;
+      background: #fff;
       border-radius: 14px;
       padding: 20px;
       box-shadow: 0 12px 30px rgba(0,0,0,0.12);
@@ -39,10 +37,8 @@
       flex-direction: column;
     }
 
-    .card h3 {
+    h3 {
       margin: 0 0 16px 0;
-      font-size: 18px;
-      color: #333;
       border-bottom: 1px solid #eee;
       padding-bottom: 8px;
     }
@@ -50,32 +46,25 @@
     label {
       font-size: 14px;
       font-weight: 600;
-      color: #444;
       margin-bottom: 6px;
       display: block;
     }
 
-    select,
-    input,
-    textarea {
+    select, input, textarea {
       width: 100%;
       padding: 10px 12px;
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 14px;
-      outline: none;
     }
 
     textarea {
+      min-height: 150px;
       resize: vertical;
-      min-height: 140px;
     }
 
-    .section {
-      margin-bottom: 18px;
-    }
+    .section { margin-bottom: 18px; }
 
-    /* FIXED RULE CHECKBOX LAYOUT */
     .rules-list {
       display: flex;
       flex-direction: column;
@@ -85,27 +74,21 @@
     .rule {
       display: grid;
       grid-template-columns: 18px auto;
-      align-items: center;
       column-gap: 10px;
-      padding: 6px 4px;
-    }
-
-    .rule input {
-      margin: 0;
-      width: 16px;
-      height: 16px;
-      accent-color: #667eea;
-      flex-shrink: 0;
+      align-items: start;
     }
 
     .rule span {
       font-size: 14px;
-      color: #333;
-      text-align: left;
       line-height: 1.3;
     }
 
-    /* BUTTONS */
+    .suggestion {
+      font-size: 12px;
+      color: #666;
+      margin-left: 28px;
+    }
+
     .btn {
       padding: 12px;
       font-size: 15px;
@@ -118,30 +101,20 @@
     .btn-primary {
       background: #667eea;
       color: #fff;
-      box-shadow: 0 6px 16px rgba(102,126,234,0.4);
     }
 
     .btn-success {
       background: #2ecc71;
       color: #fff;
-      box-shadow: 0 6px 16px rgba(46,204,113,0.4);
     }
 
-    /* TOKEN ESTIMATOR */
     .token-box {
       background: #f6f7fb;
-      border-radius: 8px;
       padding: 10px;
+      border-radius: 8px;
       font-size: 13px;
-      color: #444;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-    }
-
-    .token-box span {
-      font-weight: 600;
-      color: #333;
     }
   </style>
 </head>
@@ -151,7 +124,7 @@
 
   <!-- CARD 1 -->
   <div class="card">
-    <h3>Task Configuration</h3>
+    <h3>Task & Rules</h3>
 
     <div class="section">
       <label>Task Type</label>
@@ -181,7 +154,7 @@
 
     <div class="section">
       <label>Describe Task</label>
-      <input id="desc" placeholder="What exactly do you want?" oninput="estimateTokens()" />
+      <input id="desc" oninput="estimateTokens()" />
     </div>
 
     <div class="section token-box">
@@ -207,34 +180,111 @@
 
 <script>
 const TASK_RULES = {
-  coding: ["code_only","no_explanations","no_markdown","deterministic_output"],
-  json_generation: ["valid_json_only","no_extra_fields","no_comments"],
-  image_generation: ["prompt_only","no_analysis","no_artist_names"],
-  image_analysis: ["structured_output","no_speculation","answer_only_asked"],
-  drafting: ["respect_tone","respect_word_limit","single_version"],
-  planning: ["bullet_sections","no_storytelling","actionable_only"],
-  analysis: ["no_essays","clear_criteria","explicit_decision"],
-  qa: ["short_answer","no_examples","no_rephrasing"],
-  brainstorming: ["fixed_number","one_line_per_idea","no_elaboration"],
-  summarization: ["preserve_meaning","no_new_info","strict_length"]
+  coding: {
+    rules: [
+      "code_only",
+      "no_explanations",
+      "no_markdown",
+      "deterministic_output",
+      "follow_language_version",
+      "sample_message"
+    ],
+    suggestion: "Specify language and version clearly to avoid incompatible code."
+  },
+  json_generation: {
+    rules: [
+      "valid_json_only",
+      "no_extra_fields",
+      "comments",
+      "specified_format"
+    ],
+    suggestion: "Always define exact keys and structure before generation."
+  },
+  image_generation: {
+    rules: [
+      "prompt_only",
+      "explanation",
+      "include_style_mood_composition"
+    ],
+    suggestion: "Provide style, mood, and composition inputs for better results."
+  },
+  image_analysis: {
+    rules: [
+      "structured_output",
+      "no_storytelling",
+      "no_repetition"
+    ],
+    suggestion: "Ask only for observable details to avoid hallucination."
+  },
+  drafting: {
+    rules: [
+      "clean_final_text",
+      "no_meta_commentary",
+      "no_justification"
+    ],
+    suggestion: "Set tone and audience explicitly for clean output."
+  },
+  planning: {
+    rules: [
+      "actionable_only",
+      "no_motivational",
+      "no_assumptions"
+    ],
+    suggestion: "Provide constraints (time, budget, scope) for practical plans."
+  },
+  analysis: {
+    rules: [
+      "use_table",
+      "no_background_explanation"
+    ],
+    suggestion: "Define decision criteria upfront."
+  },
+  qa: {
+    rules: [
+      "answer_only_question",
+      "minimal_words",
+      "no_followups"
+    ],
+    suggestion: "Ask precise questions to get precise answers."
+  },
+  brainstorming: {
+    rules: [
+      "no_ranking",
+      "no_summaries"
+    ],
+    suggestion: "Limit number of ideas to keep output focused."
+  },
+  summarization: {
+    rules: [
+      "format_bullets",
+      "strict_length_control",
+      "no_commentary"
+    ],
+    suggestion: "Mention desired length or bullet count."
+  }
 };
 
 function renderRules() {
+  const t = task.value;
   const rulesDiv = document.getElementById("rules");
   rulesDiv.innerHTML = "";
-  TASK_RULES[task.value].forEach(rule => {
+
+  TASK_RULES[t].rules.forEach(rule => {
     const row = document.createElement("div");
     row.className = "rule";
     row.innerHTML = `<input type="checkbox" checked value="${rule}">
                      <span>${rule.replaceAll("_"," ")}</span>`;
     rulesDiv.appendChild(row);
   });
+
+  const hint = document.createElement("div");
+  hint.className = "suggestion";
+  hint.textContent = "Suggestion: " + TASK_RULES[t].suggestion;
+  rulesDiv.appendChild(hint);
 }
 
 function estimateTokens() {
-  const text = document.getElementById("desc").value;
-  const approx = Math.ceil(text.length / 4);
-  document.getElementById("tokenCount").innerText = approx;
+  tokenCount.innerText = Math.ceil(desc.value.length / 4);
 }
 
 function generate() {
@@ -253,7 +303,7 @@ function generate() {
 
 function copy() {
   navigator.clipboard.writeText(output.value);
-  alert("Copied to clipboard");
+  alert("Copied");
 }
 
 renderRules();
