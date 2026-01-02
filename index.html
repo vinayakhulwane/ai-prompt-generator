@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Prompt Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; padding: 16px; }
+    select, input, textarea, button {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px;
+      font-size: 16px;
+    }
+    textarea { height: 180px; }
+    button { cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h3>AI Prompt Generator</h3>
+
+<label>Task Type</label>
+<select id="task">
+  <option value="coding">Coding</option>
+  <option value="image_generation">Image Generation</option>
+  <option value="drafting">Drafting</option>
+  <option value="planning">Planning</option>
+  <option value="json_generation">JSON Generation</option>
+</select>
+
+<label>Describe Task (short & strict)</label>
+<input id="desc" placeholder="What exactly do you want?" />
+
+<label>Max Tokens</label>
+<input id="tokens" type="number" value="300" />
+
+<button onclick="generate()">Generate JSON</button>
+
+<textarea id="output" placeholder="Generated JSON will appear here"></textarea>
+
+<button onclick="copy()">Copy to Clipboard</button>
+
+<script>
+function generate() {
+  const data = {
+    role: "system",
+    task: document.getElementById("task").value,
+    rules: {
+      max_tokens: Number(document.getElementById("tokens").value),
+      no_explanations: true,
+      no_fluff: true
+    },
+    user_input: document.getElementById("desc").value
+  };
+
+  document.getElementById("output").value =
+    JSON.stringify(data, null, 2);
+}
+
+function copy() {
+  navigator.clipboard.writeText(
+    document.getElementById("output").value
+  );
+  alert("Copied to clipboard");
+}
+</script>
+
+</body>
+</html>
