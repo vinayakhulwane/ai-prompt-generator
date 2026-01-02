@@ -6,10 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       font-family: "Segoe UI", Arial, sans-serif;
       background: linear-gradient(135deg, #667eea, #764ba2);
@@ -22,49 +18,54 @@
     }
 
     .container {
-      background: #ffffff;
+      background: #fff;
+      max-width: 560px;
       width: 100%;
-      max-width: 520px;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.15);
     }
 
     h2 {
-      margin-top: 0;
       text-align: center;
-      color: #333;
+      margin-top: 0;
     }
 
     label {
-      font-size: 14px;
       font-weight: 600;
       margin-top: 14px;
       display: block;
-      color: #444;
     }
 
-    select,
-    input,
-    textarea {
+    select, input, textarea {
       width: 100%;
       margin-top: 6px;
       padding: 10px;
       font-size: 15px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      outline: none;
     }
 
     textarea {
-      height: 160px;
+      height: 150px;
       resize: vertical;
     }
 
-    select:focus,
-    input:focus,
-    textarea:focus {
-      border-color: #667eea;
+    .rules-box {
+      margin-top: 12px;
+      padding: 10px;
+      background: #f5f6fa;
+      border-radius: 8px;
+    }
+
+    .rule-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .rule-item input {
+      margin-right: 8px;
     }
 
     button {
@@ -76,7 +77,6 @@
       border-radius: 8px;
       border: none;
       cursor: pointer;
-      transition: background 0.2s ease;
     }
 
     .generate-btn {
@@ -84,89 +84,149 @@
       color: #fff;
     }
 
-    .generate-btn:hover {
-      background: #5a6fdc;
-    }
-
     .copy-btn {
       background: #2ecc71;
       color: #fff;
-    }
-
-    .copy-btn:hover {
-      background: #27ae60;
-    }
-
-    .footer-note {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #777;
-      text-align: center;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h2>AI Prompt Generator</h2>
+<div class="container">
+  <h2>AI Prompt Generator</h2>
 
-    <label>Task Type</label>
-    <select id="task">
-      <option value="coding">Coding</option>
-      <option value="json_generation">JSON Generation</option>
-      <option value="image_generation">Image Generation</option>
-      <option value="image_analysis">Image Analysis</option>
-      <option value="drafting_email">Drafting – Email</option>
-      <option value="drafting_letter">Drafting – Letter</option>
-      <option value="drafting_script">Drafting – Script</option>
-      <option value="planning_event">Planning – Event</option>
-      <option value="planning_product">Planning – Product</option>
-      <option value="planning_roadmap">Planning – Roadmap</option>
-      <option value="analysis_compare">Analysis – Compare</option>
-      <option value="analysis_evaluate">Analysis – Evaluate</option>
-      <option value="analysis_decide">Analysis – Decide</option>
-      <option value="qa">Q&A / Short Answer</option>
-      <option value="brainstorming">Brainstorming (Controlled)</option>
-      <option value="summarization">Summarization</option>
-    </select>
+  <label>Task Type</label>
+  <select id="task" onchange="renderRules()">
+    <option value="coding">Coding</option>
+    <option value="json_generation">JSON Generation</option>
+    <option value="image_generation">Image Generation</option>
+    <option value="image_analysis">Image Analysis</option>
+    <option value="drafting">Drafting</option>
+    <option value="planning">Planning</option>
+    <option value="analysis">Analysis</option>
+    <option value="qa">Q&A / Short Answer</option>
+    <option value="brainstorming">Brainstorming</option>
+    <option value="summarization">Summarization</option>
+  </select>
 
-    <label>Describe Task (short & strict)</label>
-    <input id="desc" placeholder="What exactly do you want?" />
+  <label>Rules</label>
+  <div id="rules" class="rules-box"></div>
 
-    <button class="generate-btn" onclick="generate()">Generate JSON</button>
+  <label>Describe Task</label>
+  <input id="desc" placeholder="What exactly do you want?" />
 
-    <label>Generated Prompt JSON</label>
-    <textarea id="output" placeholder="Generated JSON will appear here"></textarea>
+  <button class="generate-btn" onclick="generate()">Generate JSON</button>
 
-    <button class="copy-btn" onclick="copy()">Copy to Clipboard</button>
+  <label>Generated Prompt JSON</label>
+  <textarea id="output"></textarea>
 
-    <div class="footer-note">
-      Token control handled by system profiles
-    </div>
-  </div>
+  <button class="copy-btn" onclick="copy()">Copy to Clipboard</button>
+</div>
 
-  <script>
-    function generate() {
-      const data = {
-        role: "system",
-        task_type: document.getElementById("task").value,
-        rules: {
-          no_explanations: true,
-          no_fluff: true
-        },
-        user_input: document.getElementById("desc").value
-      };
+<script>
+const TASK_RULES = {
+  coding: [
+    "code_only",
+    "no_explanations",
+    "no_markdown",
+    "deterministic_output"
+  ],
+  json_generation: [
+    "valid_json_only",
+    "no_extra_fields",
+    "no_comments"
+  ],
+  image_generation: [
+    "prompt_only",
+    "no_analysis",
+    "no_artist_names"
+  ],
+  image_analysis: [
+    "structured_output",
+    "no_speculation",
+    "answer_only_asked"
+  ],
+  drafting: [
+    "respect_tone",
+    "respect_word_limit",
+    "single_version"
+  ],
+  planning: [
+    "bullet_sections",
+    "no_storytelling",
+    "actionable_only"
+  ],
+  analysis: [
+    "no_essays",
+    "clear_criteria",
+    "explicit_decision"
+  ],
+  qa: [
+    "short_answer",
+    "no_examples",
+    "no_rephrasing"
+  ],
+  brainstorming: [
+    "fixed_number",
+    "one_line_per_idea",
+    "no_elaboration"
+  ],
+  summarization: [
+    "preserve_meaning",
+    "no_new_info",
+    "strict_length"
+  ]
+};
 
-      document.getElementById("output").value =
-        JSON.stringify(data, null, 2);
-    }
+function renderRules() {
+  const task = document.getElementById("task").value;
+  const rulesDiv = document.getElementById("rules");
+  rulesDiv.innerHTML = "";
 
-    function copy() {
-      navigator.clipboard.writeText(
-        document.getElementById("output").value
-      );
-      alert("Copied to clipboard");
-    }
-  </script>
+  TASK_RULES[task].forEach(rule => {
+    const div = document.createElement("div");
+    div.className = "rule-item";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = rule;
+    checkbox.checked = true;
+
+    const label = document.createElement("span");
+    label.textContent = rule.replaceAll("_", " ");
+
+    div.appendChild(checkbox);
+    div.appendChild(label);
+    rulesDiv.appendChild(div);
+  });
+}
+
+function generate() {
+  const task = document.getElementById("task").value;
+  const rules = {};
+  document.querySelectorAll("#rules input:checked").forEach(cb => {
+    rules[cb.value] = true;
+  });
+
+  const data = {
+    role: "system",
+    task_type: task,
+    rules: rules,
+    user_input: document.getElementById("desc").value
+  };
+
+  document.getElementById("output").value =
+    JSON.stringify(data, null, 2);
+}
+
+function copy() {
+  navigator.clipboard.writeText(
+    document.getElementById("output").value
+  );
+  alert("Copied to clipboard");
+}
+
+renderRules();
+</script>
 </body>
 </html>
